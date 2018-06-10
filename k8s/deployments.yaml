@@ -1,0 +1,495 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: basket
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: basket
+    spec:
+      containers:
+      - name: basket
+        image: eshop/basket.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/basket-api
+        - name: ConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: BasketRedisConStr
+        - name: EventBusConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: BasketBus
+        - name: AzureServiceBusEnabled
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: UseAzureServiceBus
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityUrl
+        ports:
+        - containerPort: 80      
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: catalog
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: catalog
+    spec:
+      containers:
+      - name: catalog
+        image: eshop/catalog.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/catalog-api
+        - name: ConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: CatalogSqlDb
+        - name: ExternalCatalogBaseUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: CatalogUrl
+        - name: EventBusConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: CatalogBus
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: identity
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: identity
+    spec:
+      containers:
+      - name: identity
+        image: eshop/identity.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/identity
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: IdentitySqlDb
+        - name: DPConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: keystore
+        - name: IsClusterEnv
+          value: 'True'
+        - name: MvcClient
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: MvcClientExternalUrl
+        - name: SpaClient
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: SpaClientExternalUrl
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ordering
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: ordering
+    spec:
+      containers:
+      - name: ordering
+        image: eshop/ordering.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/ordering-api
+        - name: ConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: OrderingSqlDb
+        - name: EventBusConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: OrderingBus
+        - name: AzureServiceBusEnabled
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: UseAzureServiceBus
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityUrl
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: locations
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: locations
+    spec:
+      containers:
+      - name: locations
+        image: eshop/locations.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/locations-api
+        - name: ConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: LocationsNoSqlDb
+        - name: Database
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: LocationsNoSqlDbName
+        - name: AzureServiceBusEnabled
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: UseAzureServiceBus
+        - name: EventBusConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: LocationsBus
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityUrl
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: marketing
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: marketing
+    spec:
+      containers:
+      - name: marketing
+        image: eshop/marketing.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/marketing-api
+        - name: ConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: MarketingSqlDb
+        - name: MongoConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: MarketingNoSqlDb
+        - name: MongoDatabase
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: MarketingNoSqlDbName 
+        - name: AzureServiceBusEnabled
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: UseAzureServiceBus
+        - name: EventBusConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: MarketingBus
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityUrl
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: payment
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: payment
+    spec:
+      containers:
+      - name: payment
+        image: eshop/payment.api
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/payment-api
+        - name: AzureServiceBusEnabled
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: UseAzureServiceBus
+        - name: EventBusConnection
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: PaymentBus
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key      
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webmvc
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: webmvc
+    spec:
+      containers:
+      - name: webmvc
+        image: eshop/webmvc
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/webmvc
+        - name: DPConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: keystore
+        - name: IsClusterEnv
+          value: 'True'
+        - name: BasketUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: MvcClientBasketUrl
+        - name: CallBackUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: MvcClientExternalUrl
+        - name: CatalogUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: MvcClientCatalogUrl
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityUrl
+        - name: OrderingUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: MvcClientOrderingUrl
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webstatus
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: webstatus
+    spec:
+      containers:
+      - name: webstatus
+        image: eshop/webstatus
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80/webstatus
+        - name: BasketUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: BasketHealthCheckUrl
+        - name: CatalogUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: CatalogHealthCheckUrl
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityHealthCheckUrl
+        - name: OrderingUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: OrderingHealthCheckUrl
+        - name: mvc
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: WebMvcHealthCheckUrl
+        - name: spa
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: WebSpaHealthCheckUrl             
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: webspa
+spec:
+  paused: true
+  template:
+    metadata:
+      labels:
+        app: eshop
+        component: webspa
+    spec:
+      containers:
+      - name: webspa
+        image: eshop/webspa
+        imagePullPolicy: Always
+        env:
+        - name: ASPNETCORE_URLS
+          value: http://0.0.0.0:80
+        - name: DPConnectionString
+          valueFrom:
+           configMapKeyRef:
+             name: externalcfg
+             key: keystore
+        - name: IsClusterEnv
+          value: 'True'
+        - name: BasketUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: SpaClientBasketExternalUrl
+        - name: CallBackUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: SpaClientExternalUrl
+        - name: CatalogUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: SpaClientCatalogExternalUrl
+        - name: IdentityUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: SpaClientIdentityExternalUrl
+        - name: OrderingUrl
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: SpaClientOrderingExternalUrl
+        - name: BasketUrlHC
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: BasketHealthCheckUrl        
+        - name: CatalogUrlHC
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: CatalogHealthCheckUrl
+        - name: IdentityUrlHC
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: IdentityHealthCheckUrl
+        - name: OrderingUrlHC
+          valueFrom:
+           configMapKeyRef:
+             name: urls
+             key: OrderingHealthCheckUrl
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: registry-key

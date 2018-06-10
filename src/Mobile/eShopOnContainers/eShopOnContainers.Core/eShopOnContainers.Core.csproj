@@ -47,7 +47,6 @@
     <Compile Include="Controls\AddBasketButton.xaml.cs">
       <DependentUpon>AddBasketButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\BindablePicker.cs" />
     <Compile Include="Controls\CustomTabbedPage.cs" />
     <Compile Include="Controls\ToggleButton.cs" />
     <Compile Include="Converters\CountToBoolConverter.cs" />
@@ -65,12 +64,16 @@
     <Compile Include="Helpers\EasingHelper.cs" />
     <Compile Include="Helpers\ServicesHelper.cs" />
     <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Models\Basket\BasketCheckout.cs" />
     <Compile Include="Models\Basket\BasketItem.cs" />
     <Compile Include="Models\Basket\CustomerBasket.cs" />
     <Compile Include="Models\Catalog\CatalogBrand.cs" />
     <Compile Include="Models\Catalog\CatalogItem.cs" />
     <Compile Include="Models\Catalog\CatalogRoot.cs" />
     <Compile Include="Models\Catalog\CatalogType.cs" />
+    <Compile Include="Models\Location\Location.cs" />
+    <Compile Include="Models\Marketing\CampaignItem.cs" />
+    <Compile Include="Models\Marketing\CampaignRoot.cs" />
     <Compile Include="Models\Navigation\TabParameter.cs" />
     <Compile Include="Models\Orders\CardType.CS" />
     <Compile Include="Models\Orders\Order.cs" />
@@ -92,6 +95,11 @@
     <Compile Include="Services\Dialog\IDialogService.cs" />
     <Compile Include="Services\Identity\IdentityService.cs" />
     <Compile Include="Services\Identity\IIdentityService.cs" />
+    <Compile Include="Services\Location\ILocationService.cs" />
+    <Compile Include="Services\Location\LocationService.cs" />
+    <Compile Include="Services\Marketing\ICampaignService.cs" />
+    <Compile Include="Services\Marketing\CampaignMockService.cs" />
+    <Compile Include="Services\Marketing\CampaignService.cs" />
     <Compile Include="Services\Navigation\INavigationService.cs" />
     <Compile Include="Services\Navigation\NavigationService.cs" />
     <Compile Include="Services\OpenUrl\IOpenUrlService.cs" />
@@ -114,6 +122,8 @@
     <Compile Include="ViewModels\Base\ViewModelBase.cs" />
     <Compile Include="ViewModels\Base\ViewModelLocator.cs" />
     <Compile Include="ViewModels\BasketViewModel.cs" />
+    <Compile Include="ViewModels\CampaignDetailsViewModel.cs" />
+    <Compile Include="ViewModels\CampaignViewModel.cs" />
     <Compile Include="ViewModels\CatalogViewModel.cs" />
     <Compile Include="ViewModels\CheckoutViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
@@ -124,8 +134,14 @@
     <Compile Include="Views\BasketView.xaml.cs">
       <DependentUpon>BasketView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CampaignView.xaml.cs">
+      <DependentUpon>CampaignView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CatalogView.xaml.cs">
       <DependentUpon>CatalogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CampaignDetailsView.xaml.cs">
+      <DependentUpon>CampaignDetailsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CheckoutView.xaml.cs">
       <DependentUpon>CheckoutView.xaml</DependentUpon>
@@ -160,6 +176,9 @@
     <Compile Include="Views\Templates\OrderTemplate.xaml.cs">
       <DependentUpon>OrderTemplate.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Templates\CampaignTemplate.xaml.cs">
+      <DependentUpon>CampaignTemplate.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Templates\ProductTemplate.xaml.cs">
       <DependentUpon>ProductTemplate.xaml</DependentUpon>
     </Compile>
@@ -167,6 +186,7 @@
     <Compile Include="Converters\FirstValidationErrorConverter.cs" />
     <Compile Include="Effects\EntryLineColorEffect.cs" />
     <Compile Include="Behaviors\LineColorBehavior.cs" />
+    <Compile Include="Models\Token\UserToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -260,14 +280,37 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\CampaignView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Annotations">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETPortable\v4.6\Profile\Profile44\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\CampaignDetailsView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\Templates\CampaignTemplate.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\..\packages\Xamarin.Forms.2.3.3.175\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\Xamarin.Forms.2.3.3.175\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets'))" />
   </Target>
-  <Import Project="..\..\..\..\packages\Xamarin.Forms.2.3.3.175\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\..\..\..\packages\Xamarin.Forms.2.3.3.175\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
+  <Import Project="..\..\..\..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\..\..\..\packages\Xamarin.Forms.2.3.4.231\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

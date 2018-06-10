@@ -4,6 +4,7 @@ import { Response } from '@angular/http';
 import { DataService } from '../shared/services/data.service';
 import { IOrder } from '../shared/models/order.model';
 import { IOrderItem } from '../shared/models/orderItem.model';
+import { IOrderDetail } from "../shared/models/order-detail.model";
 import { SecurityService } from '../shared/services/security.service';
 import { ConfigurationService } from '../shared/services/configuration.service';
 import { BasketWrapperService } from '../shared/services/basket.wrapper.service';
@@ -35,7 +36,7 @@ export class OrdersService {
         });
     }
 
-    getOrder(id: number): Observable<IOrder> {
+    getOrder(id: number): Observable<IOrderDetail> {
         let url = this.ordersUrl + '/api/v1/orders/' + id;
 
         return this.service.get(url).map((response: Response) => {
@@ -43,13 +44,7 @@ export class OrdersService {
         });
     }
 
-    postOrder(item): Observable<boolean> {
-        return this.service.postWithId(this.ordersUrl + '/api/v1/orders/new', item).map((response: Response) => {
-            return true;
-        });
-    }
-
-    mapBasketAndIdentityInfoNewOrder(): IOrder {
+    mapOrderAndIdentityInfoNewOrder(): IOrder {
         let order = <IOrder>{};
         let basket = this.basketService.basket;
         let identityInfo = this.identityService.UserData;

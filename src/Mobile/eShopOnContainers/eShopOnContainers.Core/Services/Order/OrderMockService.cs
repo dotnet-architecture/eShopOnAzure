@@ -1,4 +1,5 @@
 ﻿using eShopOnContainers.Core.Extensions;
+using eShopOnContainers.Core.Models.Basket;
 using eShopOnContainers.Core.Models.Orders;
 using eShopOnContainers.Core.Models.User;
 using System;
@@ -53,8 +54,8 @@ namespace eShopOnContainers.Core.Services.Order
 
         private static List<OrderItem> MockOrderItems = new List<OrderItem>()
         {
-            new OrderItem { OrderId = Guid.NewGuid(), ProductId = Common.Common.MockCatalogItemId01, Discount = 15, ProductName = ".NET Bot Blue Sweatshirt (M)", Quantity = 1, UnitPrice = 16.50M, PictureUrl = Device.OS != TargetPlatform.Windows ? "fake_product_01.png" : "Assets/fake_product_01.png" },
-            new OrderItem { OrderId = Guid.NewGuid(), ProductId = Common.Common.MockCatalogItemId03, Discount = 0, ProductName = ".NET Bot Black Sweatshirt (M)", Quantity = 2, UnitPrice = 19.95M, PictureUrl = Device.OS != TargetPlatform.Windows ? "fake_product_03.png" : "Assets/fake_product_03.png" }
+			new OrderItem { OrderId = Guid.NewGuid(), ProductId = Common.Common.MockCatalogItemId01, Discount = 15, ProductName = ".NET Bot Blue Sweatshirt (M)", Quantity = 1, UnitPrice = 16.50M, PictureUrl = Device.RuntimePlatform != Device.Windows ? "fake_product_01.png" : "Assets/fake_product_01.png" },
+			new OrderItem { OrderId = Guid.NewGuid(), ProductId = Common.Common.MockCatalogItemId03, Discount = 0, ProductName = ".NET Bot Black Sweatshirt (M)", Quantity = 2, UnitPrice = 19.95M, PictureUrl = Device.RuntimePlatform != Device.Windows ? "fake_product_03.png" : "Assets/fake_product_03.png" }
         };
 
         private static List<CardType> MockCardTypes = new List<CardType>()
@@ -64,17 +65,18 @@ namespace eShopOnContainers.Core.Services.Order
             new CardType { Id = 3, Name = "MasterCard" },
         };
 
-        public async Task CreateOrderAsync(Models.Orders.Order newOrder, string token)
+        private static BasketCheckout MockBasketCheckout = new BasketCheckout()
         {
-            await Task.Delay(500);
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                newOrder.OrderNumber = string.Format("{0}", MockOrders.Count + 1);
-
-                MockOrders.Insert(0, newOrder);
-            }
-        }
+            CardExpiration = DateTime.UtcNow,
+            CardHolderName = "FakeCardHolderName",
+            CardNumber = "122333423224",
+            CardSecurityNumber = "1234",
+            CardTypeId = 1,
+            City = "FakeCity",
+            Country = "FakeCountry",
+            ZipCode = "FakeZipCode",
+            Street = "FakeStreet"
+        };
 
         public async Task<ObservableCollection<Models.Orders.Order>> GetOrdersAsync(string token)
         {
@@ -110,6 +112,11 @@ namespace eShopOnContainers.Core.Services.Order
                 return MockCardTypes.ToObservableCollection();
             else
                 return new ObservableCollection<CardType>();
+        }
+
+        public BasketCheckout MapOrderToBasket(Models.Orders.Order order)
+        {
+            return MockBasketCheckout;            
         }
     }
 }

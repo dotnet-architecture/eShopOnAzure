@@ -8,5 +8,7 @@
       "System": "Information",
       "Microsoft": "Information"
     }
-  }
+  },
+  "AzureServiceBusEnabled": false,
+  "SubscriptionClientName": "Ordering"
 }
